@@ -15,12 +15,31 @@ use Illuminate\Support\Facades\Redirect;
 class ordemanagerController extends Controller
 {
 	public function order(Request $request){
-		$order = json_decode($request);
-		for
+		$orders = json_decode($request);
+		$user_id = $request->userId;
+		$current_user = User::find($user_id);
+		$order = new Order();
+		$order->user_id = $request->userId;
+		$order->address = $request->address;
+		$order->firstName = $request->firstName;
+		$order->lastName = $request->lastName;
+		$order->status = 1;
+		$order->save();
+		foreach ($orders->cart as $iteam){
+			$newOrderDetail = new OrderDetail();
+			$newOrderDetail->order_id = $order->id;
+			$newOrderDetail->name_product = $iteam->name;
+			$newOrderDetail->amount = $iteam->amount;
+			$newOrderDetail->quantity = $iteam->quantity;
+			$newOrderDetail->save();
+		}
+    return response()->json(['status'=>"OK"],['order_id'=>$order->id]);
+
 	}
 
 
-	public function getListOrder(Request $request){
-		
+	public function getListOrder(){
+		$orders = Order::get();
+        return response()->json(['orders'=> $orders, 'status'=>"OK"]);
 	}
 }
